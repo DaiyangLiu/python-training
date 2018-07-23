@@ -16,7 +16,7 @@ value=check_electric1()
 print(value)
 
 
-if value < 20 :
+if value < 50 :
     # 发件人和收件人
     sender = 'ldy_robot@126.com'
     receiver = 'daiyang_liu@163.com'
@@ -29,7 +29,7 @@ if value < 20 :
     password = 'dg1278563'
 
     mail_title = '该交电费了'
-    mail_body = '大哥您的电费不够了，赶紧交吧'
+    mail_body = '剩余电费：'+ str(value) +',大哥您的电费不够了，赶紧交吧'
 
     # 创建一个实例
     message = MIMEText(mail_body, 'plain', 'utf-8')  # 邮件正文
