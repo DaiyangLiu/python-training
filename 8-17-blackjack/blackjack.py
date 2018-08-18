@@ -23,6 +23,12 @@ class BJ_Deck(cards.Deck):
         for suit in BJ_Card.SUITS: 
             for rank in BJ_Card.RANKS: 
                 self.cards.append(BJ_Card(rank, suit))
+
+    def amount_check(self, num):
+        if len(self.cards) < (num * 3 + 5):
+            self.populate()
+            self.shuffle()
+            print("----populate---shuffled-----")
     
 
 class BJ_Hand(cards.Hand):
@@ -68,6 +74,10 @@ class BJ_Hand(cards.Hand):
 
 class BJ_Player(BJ_Hand):
     """ A Blackjack Player. """
+    def __init__(self, name):
+        super(BJ_Player,self).__init__(name[0])
+        self.money = name[1]
+
     def is_hitting(self):
         response = games.ask_yes_no("\n" + self.name + ", do you want a hit? (Y/N): ")
         return response == "y"
@@ -78,12 +88,19 @@ class BJ_Player(BJ_Hand):
 
     def lose(self):
         print(self.name, "loses.")
+        self.money -= 1
 
     def win(self):
         print(self.name, "wins.")
+        self.money += 1
 
     def push(self):
         print(self.name, "pushes.")
+
+    def is_out(self):
+        if self.money<=0:
+            return True
+        return False
 
         
 class BJ_Dealer(BJ_Hand):
@@ -127,9 +144,14 @@ class BJ_Game(object):
             print(player)
             if player.is_busted():
                 player.bust()
+
+    def refresh_players(self):
+        self.players = [player for player in self.players if not player.is_out()]
+
            
     def play(self):
         # deal initial 2 cards to everyone
+        self.deck.amount_check(len(self.players))
         self.deck.deal(self.players + [self.dealer], per_hand = 2)
         self.dealer.flip_first_card()    # hide dealer's first card
         for player in self.players:
@@ -168,6 +190,8 @@ class BJ_Game(object):
         for player in self.players:
             player.clear()
         self.dealer.clear()
+
+
         
 
 def main():
@@ -177,6 +201,8 @@ def main():
     number = games.ask_number("How many players? (1 - 7): ", low = 1, high = 8)
     for i in range(number):
         name = input("Enter player name: ")
+        money = int(input("Enter your Bet: "))
+        name = [name, money]
         names.append(name)
     print()
         
@@ -185,6 +211,7 @@ def main():
     again = None
     while again != "n":
         game.play()
+        game.refresh_players()
         again = games.ask_yes_no("\nDo you want to play again?: ")
 
 
